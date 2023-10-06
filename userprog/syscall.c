@@ -45,7 +45,6 @@ syscall_init (void) {
 void
 syscall_handler (struct intr_frame *f UNUSED) {
 	// TODO: Your implementation goes here.
-	// printf ("system call!\n");
 	struct thread *curr = thread_current();
 
 	switch(f->R.rax){
@@ -64,27 +63,16 @@ syscall_handler (struct intr_frame *f UNUSED) {
 		case SYS_OPEN :
 			f->R.rax = call_open(f->R.rdi);
 			break;
+		case SYS_EXEC:
+			f->R.rax = call_exec(f->R.rdi);
+			break;
 
-
-
-		
 
 	}
-
-	// if(f->R.rax == SYS_WRITE){
-	// 	putbuf(f->R.rsi, f->R.rdx);
-		
-	// }else if(f->R.rax == SYS_EXIT){
-	// 	struct thread *cur = thread_current();
-	// 	printf("%s: exit(%d)\n", cur->name, f->R.rdi);
-	// 	thread_exit();
-		
-	// }
 	
 }
 
-void check_addr(void *addr)
-{	
+void check_addr(const uint64_t *addr){	
 	struct thread *curr = thread_current();
 	if(addr == NULL || (is_kernel_vaddr(addr)) || pml4_get_page(curr->pml4, addr) == NULL){
 		exit(-1);}
@@ -105,7 +93,6 @@ int call_write(const void *buffer, unsigned size)
 	return;
 }
 bool call_create (const char *file, unsigned initial_size) {
-
 	check_addr(file);
 	return filesys_create(file, initial_size);
 }
@@ -157,4 +144,22 @@ int add_file_to_fdt(struct file *file){
 
 	fdt[cur->fd_idx] = file;
 	return cur->fd_idx;
+}
+
+int call_exec(char *file_name){
+	check_addr(file_name);
+
+	int size = strlen(file_name) + 1;
+	char *fn_copy = palloc_get_page(PAL_ZERO); 
+	if ((fn_copy) == NULL) {
+		exit(-1);
+	}
+	strlcpy(fn_copy, file_name, size);
+
+	if (process_exec(fn_copy) == -1) {
+		return -1;
+	}
+	NOT_REACHED();
+	return 0;
+	
 }

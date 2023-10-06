@@ -166,6 +166,7 @@ error:
  * Returns -1 on fail. */
 int
 process_exec (void *f_name) {
+	printf("process_exec()\n");
 	char *file_name = f_name;
 
 	bool success;
@@ -178,23 +179,9 @@ process_exec (void *f_name) {
 	_if.cs = SEL_UCSEG;
 	_if.eflags = FLAG_IF | FLAG_MBS;
 
-    // char *save_ptr;
-	// char *token;
-	// int argc = 0;
-
-	// token = strtok_r(f_name, " ", &save_ptr);
-	// while (token != NULL) {
-	// 	argc++;
-    //     printf("Token: %s\n", token);
-    //     token = strtok_r(NULL, " ", &save_ptr);
-    // }
-	// printf("argc: %d\n", argc);
-
-
 	/* We first kill the current context */
 	process_cleanup ();
 	/* And then load the binary */
-	// printf("몇번\n");
 	success = load (file_name, &_if);
 	
 	/* If load failed, quit. */
