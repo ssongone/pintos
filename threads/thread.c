@@ -357,7 +357,7 @@ void thread_set_priority(int new_priority)
 			curr->priority = front_thread->priority;
 		}
 	}
-
+	// ?????
 	thread_yield();
 }
 
